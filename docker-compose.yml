@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      image: jenkinsapp
+    container_name: jenkinsapp
+    ports:
+      - "5000:3001"
+    environment:
+      - PORT=${PORT}
+      - HOST=${HOST}
+    restart: always
