@@ -4,7 +4,6 @@ services:
   app:
     build:
       context: .
-      image: jenkinsapp
     container_name: jenkinsapp
     ports:
       - "5000:3001"
