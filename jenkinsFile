@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define environment variables (if needed)
+        DOCKER_IMAGE_NAME = "jenkinsapp"
+        DOCKER_TAG = "latest"
+        PORT = "3001"
+        HOST = "0.0.0.0"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the latest code from GitHub
+                git 'https://github.com/sahiljaggarwal/docker_jenkins_node_api.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image using the Dockerfile
+                    sh '''
+                    docker build -t $DOCKER_IMAGE_NAME:$DOCKER_TAG .
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy Docker Container') {
+            steps {
+                script {
+                    // Stop any running container with the same name if it exists
+                    sh '''
+                    docker ps -q -f name=$DOCKER_IMAGE_NAME | xargs -r docker stop
+                    docker ps -a -q -f name=$DOCKER_IMAGE_NAME | xargs -r docker rm
+                    '''
+
+                    // Run the Docker container
+                    sh '''
+                    docker run -d -p $PORT:$PORT --name $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:$DOCKER_TAG
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleanup actions after the pipeline runs.'
+        }
+    }
+}
